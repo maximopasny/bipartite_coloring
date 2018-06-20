@@ -492,9 +492,8 @@ class RegularBipartiteGraph(Multigraph, BipartiteBase):
 
         for edge in m:
             v, u = edge[0], edge[1]
-            belongs_to_graph = False
-            for neighbor_weighted_pair in self.incident_weighted[v]:
-                if neighbor_weighted_pair[0] == u:
-                    belongs_to_graph = True
-                # if not belongs_to_graph:
+            self.incident_weighted[v][u] += beta
+            self.incident_weighted[u][v] += beta
+
+
 
