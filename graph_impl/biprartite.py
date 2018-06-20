@@ -1,10 +1,10 @@
 import copy
 
-from bipartite_base import BipartiteBase
-from graph import Graph
+from graph_impl.graph import Graph
+from graph_impl.bipartite_base import BipartiteMixin
 
 
-class Bipartite(Graph, BipartiteBase):
+class Bipartite(Graph, BipartiteMixin):
     i = 0
 
     def __init__(self, v_one=None, v_two=None, edges=None, bigraph=None, graph=None, ignore_inconsistent=True):

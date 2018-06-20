@@ -1,6 +1,4 @@
-import logging
-from regular_bipartite_multigraph import RegularBipartiteGraph
-from timing_util import timing
+from graph_impl.regular_bipartite_multigraph import RegularBipartiteGraph
 
 
 class GabowColoringSplitMatching:
@@ -28,7 +26,7 @@ class GabowColoringSplitMatching:
             if graph.max_degree('degree') == 1:
                 m_covering_edges = [(node, graph.incident[node][0]) for node in graph.incident if len(graph.incident[node]) > 0]
             else:
-                m_covering_edges = graph.find_matching()
+                m_covering_edges = graph.find_cole_hopcroft_covering_matching()
 
             coloring[color_counter[0]] = m_covering_edges
             color_counter[0] += 1
@@ -42,7 +40,7 @@ class GabowColoringSplitMatching:
             GabowColoringSplitMatching.gabow_color(self, graph, coloring, color_counter)
 
         else:
-            euler_split_1, euler_split_2 = graph.euler_split_without_copy()
+            euler_split_1, euler_split_2 = graph.euler_split(False)
 
             GabowColoringSplitMatching.gabow_color(self, euler_split_1, coloring, color_counter)
             GabowColoringSplitMatching.gabow_color(self, euler_split_2, coloring, color_counter)
@@ -73,15 +71,15 @@ class GabowColoringDFSMatching:
 
         if graph.max_degree('degree') % 2 != 0:
 
-            m_covering_edges = []
-
             if graph.max_degree('degree') == 1:
-                m_covering_edges = [(node, graph.incident[node][0]) for node in graph.incident if len(graph.incident[node]) > 0]
+                m_covering_edges = [(node, graph.incident[node][0])
+                                    for node in graph.incident if len(graph.incident[node]) > 0]
             else:
                 mulgraph = RegularBipartiteGraph(graph=graph)
                 m_covering_edges = mulgraph.get_matchings()
                 if len(m_covering_edges) == 0:
-                    m_covering_edges = [(node, mulgraph.incident_weighted[node][0][0]) for node in mulgraph.incident_weighted]
+                    m_covering_edges = [(node, mulgraph.incident_weighted[node][0][0])
+                                        for node in mulgraph.incident_weighted]
 
             assert len(m_covering_edges) > 0
             coloring[color_counter[0]] = m_covering_edges
@@ -96,7 +94,7 @@ class GabowColoringDFSMatching:
             GabowColoringDFSMatching.gabow_color(self, graph, coloring, color_counter)
 
         else:
-            euler_split_1, euler_split_2 = graph.euler_split_without_copy()
+            euler_split_1, euler_split_2 = graph.euler_split(with_graph_copy=False)
 
             GabowColoringDFSMatching.gabow_color(self, euler_split_1, coloring, color_counter)
             GabowColoringDFSMatching.gabow_color(self, euler_split_2, coloring, color_counter)

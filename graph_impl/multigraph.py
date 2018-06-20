@@ -1,6 +1,7 @@
-from graph import Graph
-from copy import deepcopy
 from copy import copy
+from copy import deepcopy
+
+from graph_impl.graph import Graph
 
 
 class Multigraph(Graph):
@@ -161,11 +162,11 @@ class Multigraph(Graph):
                     self.incident_weighted[node_incident].remove(cur)
         del(self.incident_weighted[node])
 
-    def euler_split_without_copy(self):
+    def euler_split(self, with_graph_copy):
         H1_edges = []
         H2_edges = []
 
-        partitions = self.euler_partition_without_copy()
+        partitions = self.euler_partition(with_deepcopy=with_graph_copy)
 
         for partition in partitions:
             count = 0
@@ -190,8 +191,12 @@ class Multigraph(Graph):
             H2_new.node_coloring = self.node_coloring
         return H1_new, H2_new
 
-    def euler_partition_without_copy(self):
-        graph_to_color_copy = copy(self)
+    def euler_partition(self, with_deepcopy):
+        if with_deepcopy:
+            graph_to_color_copy = deepcopy(self)
+        else:
+            graph_to_color_copy = copy(self)
+
         partitions = []
         queue = []
         odd_degrees = []

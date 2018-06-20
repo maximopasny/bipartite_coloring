@@ -1,13 +1,12 @@
-import logging
 import random
-from bipartite_base import BipartiteBase
-from multigraph import Multigraph
 from math import floor
 from math import log2
-from copy import deepcopy
+
+from graph_impl.bipartite_base import BipartiteMixin
+from graph_impl.multigraph import Multigraph
 
 
-class RegularBipartiteGraph(Multigraph, BipartiteBase):
+class RegularBipartiteGraph(Multigraph, BipartiteMixin):
     i = 0
 
     def __init__(self, v_one=None, v_two=None,
@@ -479,6 +478,30 @@ class RegularBipartiteGraph(Multigraph, BipartiteBase):
 
         return m_arbitrary
 
+    def alon_split(self):
+        H1 = RegularBipartiteGraph()
+        H2 = RegularBipartiteGraph()
+
+        edge_processed = set()
+        max_weight = 0
+        for node in self.incident_weighted:
+            for weighted_pair in self.incident_weighted[node]:
+                neighbor = weighted_pair[0]
+                weight = weighted_pair[1]
+
+                if (neighbor, node) or (node, neighbor) in edge_processed:
+                    continue
+
+                H1.add_edge_to_incident_weighted_append_strategy(node, neighbor, int(weight / 2))
+                H2.add_edge_to_incident_weighted_append_strategy(node, neighbor, int(weight / 2))
+
+                self.remove_edge_from_incident_weighted_decrement_strategy(node, neighbor, weight - weight % 2)
+
+                edge_processed.add((node, neighbor))
+                edge_processed.add((neighbor, node))
+
+        return H1, H2
+
     def find_matchings_alon(self):
         max_degree = self.max_degree('degree')
         t = floor(log2(max_degree))
@@ -494,6 +517,8 @@ class RegularBipartiteGraph(Multigraph, BipartiteBase):
             v, u = edge[0], edge[1]
             self.incident_weighted[v][u] += beta
             self.incident_weighted[u][v] += beta
+
+
 
 
 

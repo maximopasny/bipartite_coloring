@@ -1,16 +1,15 @@
 import copy
+import csv
 import random
 import time
-
-from gabow_coloring import GabowColoringSplitMatching
-from gabow_coloring import GabowColoringDFSMatching
-from vizing_coloring import VizingColoring
-from biprartite import Bipartite
-from multigraph import Multigraph
-import csv
 from math import sqrt
-from graph import Graph
-from timing_util import timing
+
+from graph_impl.graph import Graph
+
+from gabow_coloring import GabowColoringDFSMatching
+from gabow_coloring import GabowColoringSplitMatching
+from graph_impl.biprartite import Bipartite
+from vizing_coloring import VizingColoring
 
 
 #@timing

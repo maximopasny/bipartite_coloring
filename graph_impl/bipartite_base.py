@@ -5,7 +5,7 @@ import sys
 from datetime import datetime
 
 
-class BipartiteBase:
+class BipartiteMixin:
 
     def deepcopy(self):
         return copy.deepcopy(self)
@@ -13,14 +13,14 @@ class BipartiteBase:
     def copy(self):
         return copy.copy(self)
 
-    def find_matching(self):
+    def find_cole_hopcroft_covering_matching(self):
         M_containing_set = self.max_degree_vertices()
         logging.debug("initial M-cont set is " + str(M_containing_set))
         itergraph = self.copy()
         logging.debug("incident before is " + str(itergraph.incident))
 
         while itergraph.max_degree('degree') > 1:
-            G1, G2 = itergraph.covering_partition()
+            G1, G2 = itergraph.cole_hopcroft_covering_partition()
             logging.debug(str(G1.max_degree('degree')) + " G1 max degree")
             logging.debug(str(G2.max_degree('degree')) + " G2 max degree")
             logging.debug("G1 incident " + str(G1.incident))
@@ -71,50 +71,13 @@ class BipartiteBase:
         logging.debug('matching is ' + str(matching))
         return matching
 
-    def euler_partiton(self):
+    def euler_partiton(self, with_deepcopy=True):
         logging.debug("start partition")
-        graph_to_color_copy = self.deepcopy()
-        partitions = []
-        queue = []
-        odd_degrees = []
-        even_degrees = []
+        if with_deepcopy:
+            graph_to_color_copy = self.deepcopy()
+        else:
+            graph_to_color_copy = self.copy()
 
-        for node in graph_to_color_copy.incident:
-            degree = graph_to_color_copy.degree(node)
-            if degree % 2 == 0:
-                even_degrees.append(node)
-            else:
-                odd_degrees.append(node)
-
-        queue.extend(odd_degrees)
-        queue.extend(even_degrees)
-
-        while len(queue) != 0:
-            first_node = queue[0]
-            queue.remove(first_node)
-
-            if graph_to_color_copy.degree(first_node) != 0:
-                new_path = []
-                current_node = first_node
-
-                while graph_to_color_copy.degree(current_node) != 0:
-                    processing_vertex_neighbors = graph_to_color_copy.neighbors(current_node)
-                    next_node = processing_vertex_neighbors[0]
-                    graph_to_color_copy.remove_edge(current_node, next_node)
-                    new_path.append((current_node, next_node))
-                    current_node = next_node
-
-                partitions.append(new_path)
-                if graph_to_color_copy.degree(first_node) != 0:
-                    queue.append(first_node)
-
-        logging.debug(partitions)
-
-        return partitions
-
-    def euler_partiton_without_copy(self):
-        logging.debug("start partition")
-        graph_to_color_copy = self.copy()
         partitions = []
         queue = []
         odd_degrees = []
@@ -154,41 +117,12 @@ class BipartiteBase:
         return partitions
 
     # @timing
-    def euler_split(self):
+    def euler_split(self, with_graph_copy):
         logging.debug("start split")
         H1_edges = []
         H2_edges = []
 
-        partitions = self.euler_partiton()
-
-        for partition in partitions:
-            count = 0
-            for edge in partition:
-                if count % 2 == 0:
-                    H1_edges.append(edge)
-                else:
-                    H2_edges.append(edge)
-                count += 1
-
-        H1_new = self.__class__()
-        H2_new = self.__class__()
-
-        for edge in H1_edges:
-            H1_new.add_edge(edge[0], edge[1])
-
-        for edge in H2_edges:
-            H2_new.add_edge(edge[0], edge[1])
-
-        # self.draw_euler_split(H1_new, H2_new)
-
-        return H1_new, H2_new
-
-    def euler_split_without_copy(self):
-        logging.debug("start split")
-        H1_edges = []
-        H2_edges = []
-
-        partitions = self.euler_partiton_without_copy()
+        partitions = self.euler_partiton(with_deepcopy=with_graph_copy)
 
         for partition in partitions:
             count = 0
@@ -228,12 +162,12 @@ class BipartiteBase:
                                        'euler_split_part' + str(i) + " " + time + ".png", pos)
             self.__class__.i += 1
 
-    def covering_partition(self):
+    def cole_hopcroft_covering_partition(self):
         logging.debug("covering partition")
         if self.max_degree('degree') % 2 == 0:
-            return self.euler_split_without_copy()
+            return self.euler_split(with_graph_copy=False)
 
-        H1, H2 = self.euler_split()
+        H1, H2 = self.euler_split(with_graph_copy=True)
         M_containing_set = self.max_degree_vertices()
         logging.debug("M containing set is " + str(M_containing_set))
         D = self.max_degree('degree')
@@ -275,7 +209,7 @@ class BipartiteBase:
         logging.debug(str(M2) + " is M2")
         while len(M2) != 0:
             logging.debug(str(M2) + " is M2 looping")
-            H21, H22 = H2.euler_split()
+            H21, H22 = H2.euler_split(with_graph_copy=True)
             if H21.max_degree('degree') == 0 or H22.max_degree('degree') == 0:
                 return H21, H22
             if H21.max_degree('degree') == 1 or H22.max_degree('degree') == 1:

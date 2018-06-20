@@ -38,18 +38,3 @@ for p in p_based_dict:
     # ax.plot(x, b2 + m2*x, 'b-')
     ax.legend(loc='upper left')
     fig.show()
-
-# for p in p_based_dict:
-#     x = np.array([value[1]*(log2(value[1])**2) for value in p_based_dict[p]])
-#     # vizing = np.array([value[2] for value in p_based_dict[p]])
-#     gabow = np.array([value[3] for value in p_based_dict[p]])
-#     fig = plt.figure()
-#     ax = plt.axes()
-#     # ax.plot(x, vizing, 'r*')
-#     # b1, m1 = polyfit(x, vizing, 1)
-#     # ax.plot(x, b1 + m1*x, 'r-')
-#
-#     ax.plot(x, gabow, 'bo')
-#     b2, m2 = polyfit(x, gabow, 1)
-#     ax.plot(x, b2 + m2*x, 'b-')
-#     fig.show()
